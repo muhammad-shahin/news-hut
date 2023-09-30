@@ -1,0 +1,19 @@
+nav a.active {
+  color: #01aaff;
+  padding: 5px 15px;
+  border-radius: 6px;
+  position: relative;
+  font-weight: bold;
+}
+/* custom underline */
+nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background-color: #01aaff;
+  transition: all 0.5s ease-in;
+}
