@@ -8,6 +8,9 @@ import { AuthContext } from "../../context/AuthContextProvider";
 import { updateProfile } from "firebase/auth";
 import Swal from "sweetalert2";
 import Modal from "../Utility/Modal";
+import firebaseAuthError from "../Utility/FirebaseError";
+import firebaseStorageError from "../Utility/FirebaseStorageError";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,21 +23,24 @@ const SignUp = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [imageName, setImageName] = useState(null);
 
+  const navigate = useNavigate();
+
   //   importing context
-  const { createUser } = useContext(AuthContext);
+  const { createUser, signInWithGoogle } = useContext(AuthContext);
 
   //   handle Image Input on change
   const handleImageInput = (event) => {
-    setImageUpload();
+    setImageUpload(event.target.files[0]);
     setImageName(event.target.files[0].name);
   };
 
   //   handle Image Upload
   const handleImageUpload = () => {
     if (!imageUpload) return setErrorMessage("Please Chose A Picture");
+    const randomNumber = Math.floor(Math.random() * 100);
     const imageRef = ref(
       storage,
-      `NewsHunt/profilePicture/${imageUpload.name}`
+      `NewsHunt/profilePicture/${randomNumber}${imageUpload.name}`
     );
     uploadBytes(imageRef, imageUpload).then((snapshot) => {
       setModalMessage(
@@ -45,11 +51,16 @@ const SignUp = () => {
           photoURL: url,
         })
           .then(() => {
+            setImageName(null);
             Swal.fire({
               title: "Sign Up Complete",
               text: "Account Created & Profile Picture Updated Successfully. Now Verify Your Account To Sign In",
               icon: "success",
               confirmButtonText: "Sign In Now",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate("/login");
+              }
             });
             setModalMessage(
               "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p> <p>Profile Picture Uploaded Successfully ✔️</p> <p>Registration Complete ✔️</p>"
@@ -58,13 +69,8 @@ const SignUp = () => {
             console.log(auth.currentUser);
           })
           .catch((error) => {
-            Swal.fire({
-              title: "Failed To Upload Profile Picture",
-              text: "Account Created But Failed to Update The Profile Picture. You can Continue Without Profile Picture",
-              icon: "error",
-              confirmButtonText: "Sign In Now",
-            });
-            setErrorMessage(error.message);
+            setShowModal(false);
+            firebaseStorageError(error.message);
           });
       });
     });
@@ -84,7 +90,7 @@ const SignUp = () => {
     if (password === confirmPassword) {
       createUser(email, password)
         .then((userCredential) => {
-          const user = userCredential.user;
+          console.log(userCredential.user);
           setModalMessage(
             "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p>"
           );
@@ -99,20 +105,33 @@ const SignUp = () => {
               setModalMessage(
                 "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p>"
               );
+              if (imageUpload) {
+                handleImageUpload();
+              } else {
+                setShowModal(false);
+                Swal.fire({
+                  title: "Sign Up Complete",
+                  text: "Account Created & Profile Updated Successfully. Now Verify Your Account To Sign In",
+                  icon: "success",
+                  confirmButtonText: "Sign In Now",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate("/login");
+                  }
+                });
+              }
             })
             .catch((error) => {
-              setErrorMessage(error.message);
+              setShowModal(false);
+              firebaseAuthError(error.message);
             });
-          imageUpload && handleImageUpload();
         })
         .catch((error) => {
-          setErrorMessage(error.message);
-          Swal.fire({
-            title: "Failed To Create Account",
-            text: "Failed To Create Account Please Try Again. Check The Error Message For Better Understanding",
-            icon: "error",
-            confirmButtonText: "Sign In Now",
-          });
+          setModalMessage(
+            "<p>Creating Your Account ⏳</p> <p>Failed To Create Account ❌</p>"
+          );
+          setShowModal(false);
+          firebaseAuthError(error.message);
         });
     } else {
       setShowModal(false);
@@ -127,6 +146,25 @@ const SignUp = () => {
     } else if (e.target.name === "confirmPassword") {
       setConfirmPasswordErrorMessage(passwordErrorChecker(e));
     }
+  };
+
+  // handle google sign in
+  const handleGoogleSignIn = () => {
+    signInWithGoogle()
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Successfully Signed In",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      })
+      .catch((error) => {
+        firebaseAuthError(error.message);
+      });
   };
 
   return (
@@ -249,7 +287,10 @@ const SignUp = () => {
 
       {/* sign in with google section */}
       <div>
-        <button className="text-[22px] outline-none border-2 border-gray-300 px-5 py-2 rounded-full bg-white font-medium text-sky-600 flex justify-center items-center gap-3">
+        <button
+          className="text-[22px] outline-none border-2 border-gray-300 px-5 py-2 rounded-full bg-white font-medium text-sky-600 flex justify-center items-center gap-3"
+          onClick={handleGoogleSignIn}
+        >
           <FcGoogle className="text-[26px]" />
           Continue With Google
         </button>
