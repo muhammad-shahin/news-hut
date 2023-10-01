@@ -8,7 +8,16 @@ const firebaseAuthError = (errorMessage) => {
       icon: "error",
       confirmButtonText: "Ok",
     });
-  } else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
+  } else if (
+    errorMessage === "Firebase: Error (auth/invalid-login-credentials)."
+  ) {
+    return Swal.fire({
+      title: "Invalid Email or Password",
+      text: "No user found with this email & password. Please double-check your email address & password and try again.",
+      icon: "error",
+      confirmButtonText: "Ok",
+    });
+  } else if (errorMessage === "Firebase: Error (auth/ invalid-email).") {
     return Swal.fire({
       title: "Invalid Email Address",
       text: "The email address you entered is not in a valid format. Please double-check your email address and try again.",

@@ -18,7 +18,7 @@ const Navbar = () => {
         <ul
           className={` lg:static fixed top-[85px] ${
             isOpen ? "right-0" : "right-[-100%]"
-          } lg:h-auto h-screen lg:w-auto w-[50%] flex lg:flex-row flex-col lg:bg-none bg-sky-100 lg:p-0 p-4 justify-start lg:justify-center items-center lg:gap-10 gap-8 duration-700 pt-10 lg:pt-0`}
+          } lg:h-auto h-screen lg:w-auto w-[50%] flex lg:flex-row flex-col lg:bg-none bg-sky-100 lg:p-0 p-4 justify-start lg:justify-center items-center lg:gap-10 gap-8 duration-700 pt-10 lg:pt-0 z-[100]`}
         >
           <li
             className="text-sky-600 font-medium text-[16px] hover:scale-[1.1] duration-500"

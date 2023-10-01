@@ -17,7 +17,6 @@ const SignUp = () => {
   const [passwordError, setPasswordErrorMessage] = useState("");
   const [confirmPasswordError, setConfirmPasswordErrorMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [success, setSuccessMessage] = useState("");
   const [imageUpload, setImageUpload] = useState();
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -36,7 +35,7 @@ const SignUp = () => {
 
   //   handle Image Upload
   const handleImageUpload = () => {
-    if (!imageUpload) return setErrorMessage("Please Chose A Picture");
+    if (!imageUpload) return;
     const randomNumber = Math.floor(Math.random() * 100);
     const imageRef = ref(
       storage,
@@ -157,7 +156,7 @@ const SignUp = () => {
         Swal.fire({
           position: "center",
           icon: "success",
-          title: "Successfully Signed In",
+          title: "Successfully Signed In With Google",
           showConfirmButton: false,
           timer: 2000,
         });
@@ -174,7 +173,7 @@ const SignUp = () => {
         onSubmit={handleSignUp}
       >
         <h2 className="text-[22px] rounded-lg text-sky-600 font-medium">
-          Crete An Account To Read All News Categories{" "}
+          Crete An Account{" "}
         </h2>
         <input
           className="text-[22px] outline-none border-2 border-sky-500 px-5 py-2 rounded-lg text-sky-600 font-medium"
@@ -268,12 +267,7 @@ const SignUp = () => {
         />
         {errorMessage && (
           <p className="text-red-600 font-medium text-[18px] text-center mt-4">
-            {errorMessage}
-          </p>
-        )}
-        {success && (
-          <p className="text-green-600 font-medium text-[18px] text-center mt-4">
-            {success}
+            Crete An Account {errorMessage}
           </p>
         )}
       </form>
