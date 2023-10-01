@@ -5,7 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, storage } from "../../firebase/firebase.config";
 import passwordErrorChecker from "../Utility/PasswordErrorChecker";
 import { AuthContext } from "../../context/AuthContextProvider";
-import { updateProfile } from "firebase/auth";
+import { sendEmailVerification, updateProfile } from "firebase/auth";
 import Swal from "sweetalert2";
 import Modal from "../Utility/Modal";
 import firebaseAuthError from "../Utility/FirebaseError";
@@ -51,21 +51,24 @@ const SignUp = () => {
         })
           .then(() => {
             setImageName(null);
-            Swal.fire({
-              title: "Sign Up Complete",
-              text: "Account Created & Profile Picture Updated Successfully. Now Verify Your Account To Sign In",
-              icon: "success",
-              confirmButtonText: "Sign In Now",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                navigate("/login");
-              }
-            });
             setModalMessage(
-              "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p> <p>Profile Picture Uploaded Successfully ✔️</p> <p>Registration Complete ✔️</p>"
+              "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p> <p>Profile Picture Uploaded Successfully ✔️</p> <p>Registration Complete ✔️</p> <p>Verification Email Sent ✔️</p>"
             );
-            setShowModal(false);
-            console.log(auth.currentUser);
+            sendEmailVerification(auth.currentUser).then(() => {
+              setTimeout(() => {
+                setShowModal(false);
+                Swal.fire({
+                  title: "Sign Up Complete",
+                  text: "Account Created & Profile Picture Updated Successfully. Now Verify Your Account To Sign In",
+                  icon: "success",
+                  confirmButtonText: "Sign In Now",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate("/login");
+                  }
+                });
+              }, 1500);
+            });
           })
           .catch((error) => {
             setShowModal(false);
@@ -84,7 +87,6 @@ const SignUp = () => {
     const confirmPassword = e.target.confirmPassword.value;
     setModalMessage("<p>Creating Your Account ⏳</p>");
     setShowModal(true);
-    setSuccessMessage("");
     setErrorMessage("");
     if (password === confirmPassword) {
       createUser(email, password)
@@ -101,22 +103,26 @@ const SignUp = () => {
             displayName: name,
           })
             .then(() => {
-              setModalMessage(
-                "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p>"
-              );
               if (imageUpload) {
                 handleImageUpload();
               } else {
-                setShowModal(false);
-                Swal.fire({
-                  title: "Sign Up Complete",
-                  text: "Account Created & Profile Updated Successfully. Now Verify Your Account To Sign In",
-                  icon: "success",
-                  confirmButtonText: "Sign In Now",
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    navigate("/login");
-                  }
+                sendEmailVerification(auth.currentUser).then(() => {
+                  setModalMessage(
+                    "<p>Creating Your Account ⏳</p> <p>Account Created Successfully ✔️</p> <p>Profile Updated ✔️</p> <p>Verification Email Sent ✔️</p>"
+                  );
+                  setTimeout(() => {
+                    setShowModal(false);
+                    Swal.fire({
+                      title: "Sign Up Complete",
+                      text: "Account Created & Profile Updated Successfully. Now Verify Your Account To Sign In",
+                      icon: "success",
+                      confirmButtonText: "Sign In Now",
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        navigate("/login");
+                      }
+                    });
+                  }, 1500);
                 });
               }
             })

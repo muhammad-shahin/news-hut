@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Modal from "../Utility/Modal";
 import firebaseAuthError from "../Utility/FirebaseError";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase/firebase.config";
+import { sendEmailVerification } from "firebase/auth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,18 +32,45 @@ const Login = () => {
     setErrorMessage("");
     loginUser(email, password)
       .then((userCredential) => {
-        console.log(userCredential.user);
-        setModalMessage(
-          "<p>Login To Your Account ⏳</p> <p>Login Successfully ✔️</p>"
-        );
-        setShowModal(false);
-        Swal.fire({
-          position: "center",
-          icon: "success",
-          title: "Successfully Logged In With Email & Password",
-          showConfirmButton: false,
-          timer: 2000,
-        });
+        const user = userCredential.user;
+        if (user.emailVerified) {
+          setModalMessage(
+            "<p>Login To Your Account ⏳</p> <p>Login Successfully ✔️</p>"
+          );
+          setShowModal(false);
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Successfully Logged In With Email & Password",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        } else {
+          setShowModal(false);
+          setModalMessage(
+            "<p>Login To Your Account ⏳</p> <p>Email Not Verified ❌</p>"
+          );
+          Swal.fire({
+            title: "Email not Verified",
+            text: "Please verify your email to login. A verification email is already being sent to tour email address. If Not found send verification link again by clicking below. Also check your spam folder if not found.",
+            icon: "error",
+            confirmButtonText: "Send Verification Link",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              sendEmailVerification(auth.currentUser).then(() => {
+                Swal.fire({
+                  position: "center",
+                  icon: "success",
+                  title:
+                    "A New Verification Email is Sent to Your Email Address. Please Check Your Email.",
+                  showConfirmButton: false,
+                  timer: 3500,
+                });
+              });
+            }
+          });
+        }
+
         e.target.email.value = "";
         e.target.password.value = "";
       })
