@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@wordpress/scripts": "^26.13.0",
     "firebase": "^10.4.0",
     "hamburger-react": "^2.5.0",
     "localforage": "^1.10.0",

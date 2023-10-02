@@ -3,6 +3,7 @@ import Login from "../Login/login";
 import NewsCategory from "../NewsCategory/NewsCategory";
 import Root from "../Root/Root";
 import SignUp from "../SignUp/SignUp";
+import PrivateRoute from "../Router/PrivateRoute";
 
 const routes = [
   {
@@ -23,7 +24,11 @@ const routes = [
       },
       {
         path: "/news-category",
-        element: <NewsCategory />,
+        element: (
+          <PrivateRoute>
+            <NewsCategory />
+          </PrivateRoute>
+        ),
       },
     ],
   },
