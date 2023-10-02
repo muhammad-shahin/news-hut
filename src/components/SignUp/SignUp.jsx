@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
+import { BsFacebook } from "react-icons/bs";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, storage } from "../../firebase/firebase.config";
 import passwordErrorChecker from "../Utility/PasswordErrorChecker";
@@ -25,7 +26,8 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   //   importing context
-  const { createUser, signInWithGoogle } = useContext(AuthContext);
+  const { createUser, signInWithGoogle, loginWithFacebook } =
+    useContext(AuthContext);
 
   //   handle Image Input on change
   const handleImageInput = (event) => {
@@ -172,14 +174,33 @@ const SignUp = () => {
       });
   };
 
+  // handle login with facebook
+  const handleFacebookLogin = () => {
+    loginWithFacebook()
+      .then((result) => {
+        const user = result.user;
+        console.log("Facebook User: ", user);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Successfully Login In With Facebook",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+      });
+  };
+
   return (
     <section className="container mx-auto flex justify-center items-center w-full  flex-col">
       <form
         className="flex flex-col justify-center gap-5 my-10 w-[320px]"
         onSubmit={handleSignUp}
       >
-        <h2 className="text-[22px] rounded-lg text-sky-600 font-medium">
-          Crete An Account{" "}
+        <h2 className="text-[22px] rounded-lg text-sky-600 font-medium text-center">
+          Crete An Account
         </h2>
         <input
           className="text-[22px] outline-none border-2 border-sky-500 px-5 py-2 rounded-lg text-sky-600 font-medium"
@@ -293,6 +314,16 @@ const SignUp = () => {
         >
           <FcGoogle className="text-[26px]" />
           Continue With Google
+        </button>
+      </div>
+      {/* sign in with facebook section */}
+      <div className="mt-4">
+        <button
+          className="text-[22px] outline-none border-2 border-gray-300 px-5 py-2 rounded-full bg-white font-medium text-sky-600 flex justify-center items-center gap-3"
+          onClick={handleFacebookLogin}
+        >
+          <BsFacebook className="text-[26px]" />
+          Login With Facebook
         </button>
       </div>
 

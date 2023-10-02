@@ -1,4 +1,5 @@
 import {
+  FacebookAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -13,6 +14,7 @@ export const AuthContext = createContext(null);
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState();
   const googleProvider = new GoogleAuthProvider();
+  const facebookProvider = new FacebookAuthProvider();
 
   //   sign up function
   const createUser = (email, password) => {
@@ -29,7 +31,18 @@ const AuthContextProvider = ({ children }) => {
     return signInWithPopup(auth, googleProvider);
   };
 
-  const authInfo = { user, createUser, signInWithGoogle, loginUser };
+  // login with facebook
+  const loginWithFacebook = () => {
+    return signInWithPopup(auth, facebookProvider);
+  };
+
+  const authInfo = {
+    user,
+    createUser,
+    signInWithGoogle,
+    loginUser,
+    loginWithFacebook,
+  };
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
